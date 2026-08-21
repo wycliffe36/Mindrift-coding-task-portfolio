@@ -1,13 +1,16 @@
 import pandas as pd
-from etl import process_large_csv
 import os
+import sys
+sys.path.insert(0, os.path.dirname(__file__))
+from etl import transform_csv
 
-def test_process_large_csv():
-    df = pd.DataFrame({
-        'category': ['A', 'B'] * 50000,
-        'amount': range(100000)
-    })
+def test_transform_csv():
+    df = pd.DataFrame({'price':[10,20],'quantity':[2,3]})
     df.to_csv('test_data.csv', index=False)
-    result = process_large_csv('test_data.csv')
+    transform_csv('test_data.csv', 'test_out.csv')
+    result = pd.read_csv('test_out.csv')
     assert len(result) == 2
+    assert 'total' in result.columns
+    assert result['total'].tolist() == [20, 60]
     os.remove('test_data.csv')
+    os.remove('test_out.csv')
